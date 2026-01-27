@@ -1,6 +1,9 @@
 import Stripe from "stripe";
 import { NextResponse } from "next/server";
-import { issueDownloadToken } from "@/lib/downloadTokens";
+import { issueDownloadToken } from "../../../lib/downloadTokens";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-12-15.clover",
@@ -26,9 +29,9 @@ export async function POST(req: Request) {
     // Optional but recommended: confirm the exact price purchased
     const expectedPriceId = process.env.STRIPE_PRICE_ID;
     const lineItem = session.line_items?.data?.[0];
-    const paidPriceId = lineItem?.price?.id;
+    const paidPriceId = (lineItem?.price?.id ?? null) as string | null;
 
-    if (!expectedPriceId || !paidPriceId || paidPriceId !== expectedPriceId) {
+    if (expectedPriceId && (!paidPriceId || paidPriceId !== expectedPriceId)) {
       return NextResponse.json({ error: "Invalid purchase item" }, { status: 403 });
     }
 
