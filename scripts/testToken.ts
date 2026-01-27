@@ -1,7 +1,19 @@
-import dotenv from "dotenv";
-dotenv.config({ path: ".env.local" });
+import "dotenv/config";
+import { issueDownloadToken } from "../lib/downloadTokens";
 
-import { createDownloadToken } from "../lib/downloadTokens";
+async function main() {
+  const token = await issueDownloadToken({
+    stripeSessionId: "test_session",
+    customerEmail: "test@example.com",
+    hoursValid: 48,      // token valid for 48 hours
+    maxDownloads: 3,     // allow 3 downloads
+  });
 
-const token = createDownloadToken(48); // 48 hours
-console.log(token);
+  console.log("Generated token:");
+  console.log(token);
+}
+
+main().catch((err) => {
+  console.error("Error generating token:", err);
+  process.exit(1);
+});
